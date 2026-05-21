@@ -248,6 +248,26 @@
       box-shadow: 0 0 20px rgba(255,163,0,0.5);
     }
 
+    /* ── PRATT EASTER EGG ── */
+    #pratt-popup {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(-110%);
+      transition: transform 0.6s cubic-bezier(0.34, 1.4, 0.64, 1);
+      width: 200px;
+      z-index: 9998;
+      pointer-events: none;
+      text-align: center;
+    }
+    #pratt-popup.show {
+      transform: translateX(-50%) translateY(0);
+    }
+    #pratt-popup img {
+      width: 100%;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
+    }
+
     /* ── RED EASTER EGG ── */
     #red-popup {
       position: fixed;
@@ -891,7 +911,7 @@
   let keyBuffer = '';
   document.addEventListener('keydown', e => {
     if (['ArrowLeft','ArrowRight'].includes(e.key)) return;
-    keyBuffer = (keyBuffer + e.key).toUpperCase().slice(-7);
+    keyBuffer = (keyBuffer + e.key).toUpperCase().slice(-8);
     if (keyBuffer.includes('PRITTEN')) {
       document.getElementById('pritten-overlay').classList.add('show');
       keyBuffer = '';
@@ -907,6 +927,17 @@
         setTimeout(() => { delete popup.dataset.active; }, 600);
       }, 3500);
     }
+    if (keyBuffer.includes('PRATT')) {
+      keyBuffer = '';
+      const popup = document.getElementById('pratt-popup');
+      if (popup.dataset.active) return;
+      popup.dataset.active = '1';
+      popup.classList.add('show');
+      setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => { delete popup.dataset.active; }, 700);
+      }, 3500);
+    }
   });
   window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pritten-overlay').addEventListener('click', function() {
@@ -914,6 +945,11 @@
     });
   });
 </script>
+
+<!-- PRATT EASTER EGG -->
+<div id="pratt-popup">
+  <img src="pratt-removebg-preview.png" alt="Pratt">
+</div>
 
 <!-- RED EASTER EGG -->
 <div id="red-popup">
