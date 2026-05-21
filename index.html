@@ -282,6 +282,23 @@
     #red-popup.show {
       transform: translateY(0);
     }
+    #red-inner {
+      transform-origin: bottom center;
+    }
+    #red-inner.animate {
+      animation: red-action 1.6s ease forwards;
+    }
+    @keyframes red-action {
+      0%   { transform: scale(1); }
+      18%  { transform: scale(1.5); }
+      30%  { transform: scale(1.5) rotate(-8deg); }
+      40%  { transform: scale(1.5) rotate(8deg); }
+      50%  { transform: scale(1.5) rotate(-8deg); }
+      60%  { transform: scale(1.5) rotate(8deg); }
+      70%  { transform: scale(1.5) rotate(0deg); }
+      88%  { transform: scale(0.4); }
+      100% { transform: scale(0.4); }
+    }
     #red-popup img {
       width: 100%;
       border-radius: 16px 16px 0 0;
@@ -297,7 +314,6 @@
       letter-spacing: 2px;
       text-align: center;
       padding: 4px 0 6px;
-      border-radius: 0 0 0 0;
     }
 
     footer {
@@ -919,13 +935,20 @@
     if (keyBuffer.includes('RED')) {
       keyBuffer = '';
       const popup = document.getElementById('red-popup');
+      const inner = document.getElementById('red-inner');
       if (popup.dataset.active) return;
       popup.dataset.active = '1';
       popup.classList.add('show');
       setTimeout(() => {
-        popup.classList.remove('show');
-        setTimeout(() => { delete popup.dataset.active; }, 600);
-      }, 3500);
+        inner.classList.add('animate');
+        setTimeout(() => {
+          popup.classList.remove('show');
+          setTimeout(() => {
+            inner.classList.remove('animate');
+            delete popup.dataset.active;
+          }, 600);
+        }, 1600);
+      }, 550);
     }
     if (keyBuffer.includes('PRATT')) {
       keyBuffer = '';
@@ -953,8 +976,10 @@
 
 <!-- RED EASTER EGG -->
 <div id="red-popup">
-  <img src="red.jpg" alt="Red">
-  <div class="red-label">👋 RED</div>
+  <div id="red-inner">
+    <img src="red.jpg" alt="Red">
+    <div class="red-label">👋 RED</div>
+  </div>
 </div>
 
 <!-- EASTER EGG OVERLAY -->
