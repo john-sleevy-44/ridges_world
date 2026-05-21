@@ -248,6 +248,38 @@
       box-shadow: 0 0 20px rgba(255,163,0,0.5);
     }
 
+    /* ── RED EASTER EGG ── */
+    #red-popup {
+      position: fixed;
+      bottom: 0;
+      right: 24px;
+      width: 180px;
+      transform: translateY(110%);
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 9998;
+      pointer-events: none;
+    }
+    #red-popup.show {
+      transform: translateY(0);
+    }
+    #red-popup img {
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      border: 3px solid #e35205;
+      border-bottom: none;
+      box-shadow: 0 -8px 30px rgba(227,82,5,0.5);
+    }
+    #red-popup .red-label {
+      background: #e35205;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 4px 0 6px;
+      border-radius: 0 0 0 0;
+    }
+
     footer {
       text-align: center;
       padding: 40px 20px;
@@ -855,7 +887,7 @@
     }, 5000);
   }
 
-  // ── EASTER EGG: type "PRITTEN" ──
+  // ── EASTER EGG: type "PRITTEN" or "RED" ──
   let keyBuffer = '';
   document.addEventListener('keydown', e => {
     if (['ArrowLeft','ArrowRight'].includes(e.key)) return;
@@ -864,6 +896,17 @@
       document.getElementById('pritten-overlay').classList.add('show');
       keyBuffer = '';
     }
+    if (keyBuffer.includes('RED')) {
+      keyBuffer = '';
+      const popup = document.getElementById('red-popup');
+      if (popup.dataset.active) return;
+      popup.dataset.active = '1';
+      popup.classList.add('show');
+      setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => { delete popup.dataset.active; }, 600);
+      }, 3500);
+    }
   });
   window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pritten-overlay').addEventListener('click', function() {
@@ -871,6 +914,12 @@
     });
   });
 </script>
+
+<!-- RED EASTER EGG -->
+<div id="red-popup">
+  <img src="red.jpg" alt="Red">
+  <div class="red-label">👋 RED</div>
+</div>
 
 <!-- EASTER EGG OVERLAY -->
 <div id="pritten-overlay">
