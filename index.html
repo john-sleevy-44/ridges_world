@@ -63,18 +63,54 @@
       max-width: 1100px;
       margin: 0 auto;
     }
-    .card {
+    .card-wrapper {
       flex: 0 1 220px;
+      height: 240px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 16px;
+    }
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-front {
       background: #0d1a3a;
       border: 2px solid var(--rams-blue);
-      border-radius: 16px;
       padding: 28px 20px;
       text-align: center;
-      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
     }
-    .card:hover {
-      transform: translateY(-6px);
+    .card-wrapper:hover .card-front {
       border-color: var(--rams-gold);
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      overflow: hidden;
+      border: 2px solid var(--rams-gold);
+    }
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
     }
     .card .icon { font-size: 3rem; margin-bottom: 12px; }
     .card h3 {
@@ -229,35 +265,65 @@
 </header>
 
 <div class="interests">
-  <div class="card">
-    <div class="icon">🐏</div>
-    <h3>LA RAMS</h3>
-    <p>Blue & gold forever. Super Bowl energy, always.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🐏</div>
+        <h3>LA RAMS</h3>
+        <p>Blue & gold forever. Super Bowl energy, always.</p>
+      </div>
+      <div class="card-back"><img src="la_rams.jpg" alt="LA Rams"></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="icon">🕵️</div>
-    <h3>SPY SCHOOL</h3>
-    <p>Double agent vibes. The SPYDER won't know what hit 'em.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🕵️</div>
+        <h3>SPY SCHOOL</h3>
+        <p>Double agent vibes. The SPYDER won't know what hit 'em.</p>
+      </div>
+      <div class="card-back"><img src="spy_school.jpg" alt="Spy School"></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="icon">🐉</div>
-    <h3>WINGS OF FIRE</h3>
-    <p>SandWing? SeaWing? Either way, fire is the answer.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🐉</div>
+        <h3>WINGS OF FIRE</h3>
+        <p>SandWing? SeaWing? Either way, fire is the answer.</p>
+      </div>
+      <div class="card-back"><img src="wings_of_fire.jpg" alt="Wings of Fire"></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="icon">🥍</div>
-    <h3>LACROSSE</h3>
-    <p>Fastest game on two feet. Rip it. Dodge it. Score it.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🥍</div>
+        <h3>LACROSSE</h3>
+        <p>Fastest game on two feet. Rip it. Dodge it. Score it.</p>
+      </div>
+      <div class="card-back"><img src="lacrosse.jpg" alt="Lacrosse"></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="icon">🤼</div>
-    <h3>WRESTLING</h3>
-    <p>All technique, all grit. Six minutes of pure chaos.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🤼</div>
+        <h3>WRESTLING</h3>
+        <p>All technique, all grit. Six minutes of pure chaos.</p>
+      </div>
+      <div class="card-back"><img src="wrestling.jpg" alt="Wrestling"></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="icon">🏈</div>
-    <h3>FOOTBALL</h3>
-    <p>Defensive End, Western Wildcats. Getting after the QB since day one.</p>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🏈</div>
+        <h3>FOOTBALL</h3>
+        <p>Defensive End, Western Wildcats. Getting after the QB since day one.</p>
+      </div>
+      <div class="card-back"><img src="football.jpg" alt="Football"></div>
+    </div>
   </div>
 </div>
 
@@ -776,6 +842,18 @@
   }
 
   loop();
+
+  // ── CARD FLIP ──
+  function flipCard(wrapper) {
+    const card = wrapper.querySelector('.card');
+    if (card.dataset.flipping) return;
+    card.dataset.flipping = '1';
+    card.classList.add('flipped');
+    setTimeout(() => {
+      card.classList.remove('flipped');
+      setTimeout(() => { delete card.dataset.flipping; }, 800);
+    }, 5000);
+  }
 
   // ── EASTER EGG: type "PRITTEN" ──
   let keyBuffer = '';
