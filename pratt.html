@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pratt's Place 🐱</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap');
+
+    :root {
+      --z-green: #2d7a2d;
+      --z-gold: #c8a400;
+      --dark: #0a180a;
+      --light: #e8f5e8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--dark);
+      color: var(--light);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a3d1a 60%, #0d260d);
+      text-align: center;
+      padding: 60px 20px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '🐾';
+      font-size: 200px;
+      position: absolute;
+      opacity: 0.07;
+      top: -20px; left: -20px;
+      transform: rotate(-15deg);
+    }
+    .nav-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--z-gold);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .nav-link:hover { opacity: 1; }
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: var(--z-gold);
+      text-shadow: 0 0 30px rgba(200,164,0,0.5);
+      letter-spacing: 4px;
+    }
+    header p {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #a8d4a8;
+    }
+
+    /* ── CARDS ── */
+    .interests {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 50px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card-wrapper {
+      flex: 0 1 220px;
+      height: 240px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 16px;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-front {
+      background: #0d260d;
+      border: 2px solid var(--z-green);
+      padding: 28px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .card-wrapper:hover .card-front { border-color: var(--z-gold); }
+    .card-back {
+      transform: rotateY(180deg);
+      overflow: hidden;
+      border: 2px solid var(--z-gold);
+      background: #0d260d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+    .card .icon { font-size: 3rem; margin-bottom: 12px; }
+    .card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: var(--z-gold);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .card p { color: #a8d4a8; font-size: 0.95rem; }
+
+    /* ── GAME ── */
+    .game-section {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 50px 20px;
+      text-align: center;
+    }
+    .game-section h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--z-gold);
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      letter-spacing: 3px;
+    }
+    .game-section .subtitle {
+      color: #6a9a6a;
+      margin-bottom: 24px;
+      font-size: 1rem;
+    }
+    #gameCanvas {
+      display: block;
+      margin: 0 auto;
+      border: 3px solid var(--z-gold);
+      border-radius: 12px;
+      background: #060e06;
+    }
+    .game-controls {
+      margin-top: 14px;
+      color: #6a9a6a;
+      font-size: 0.95rem;
+    }
+    #startBtn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 40px;
+      background: var(--z-gold);
+      color: var(--dark);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    #startBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(200,164,0,0.5);
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #2a4a2a;
+      font-size: 0.9rem;
+    }
+    footer span { color: var(--z-gold); }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="nav-link" href="index.html">← RIDGE'S WORLD</a>
+  <h1>PRATT'S PLACE</h1>
+  <p>Cat Whisperer. Zelda Master. Legend in Progress.</p>
+</header>
+
+<!-- ── CARDS ── -->
+<div class="interests">
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🐱</div>
+        <h3>CATS</h3>
+        <p>The original legends. Soft. Mysterious. Superior.</p>
+      </div>
+      <div class="card-back">🐾</div>
+    </div>
+  </div>
+  <div class="card-wrapper" onclick="flipCard(this)">
+    <div class="card">
+      <div class="card-front">
+        <div class="icon">🗡️</div>
+        <h3>ZELDA</h3>
+        <p>It's dangerous to go alone. Take this.</p>
+      </div>
+      <div class="card-back">🔺</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div class="game-section">
+  <h2>TRIFORCE DUNGEON</h2>
+  <p class="subtitle">Navigate the dungeon. Avoid the enemies. Find the Triforce.</p>
+  <canvas id="gameCanvas" width="720" height="468"></canvas>
+  <div class="game-controls">Arrow keys to move</div>
+  <br>
+  <button id="startBtn">ENTER DUNGEON</button>
+</div>
+
+<footer>
+  Pratt's corner of the internet &nbsp;|&nbsp; <span>🐱 🗡️ 🔺</span>
+</footer>
+
+<script>
+  // ── FLIP CARDS ──
+  function flipCard(wrapper) {
+    const card = wrapper.querySelector('.card');
+    if (card.dataset.flipping) return;
+    card.dataset.flipping = '1';
+    card.classList.add('flipped');
+    setTimeout(() => {
+      card.classList.remove('flipped');
+      setTimeout(() => { delete card.dataset.flipping; }, 800);
+    }, 5000);
+  }
+
+  // ── GAME CONSTANTS ──
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('startBtn');
+
+  const TILE = 36;
+  const COLS = 20;
+  const ROWS = 13;
+  const W = TILE * COLS;
+  const H = TILE * ROWS;
+
+  // 0=floor, 1=wall, 2=player start, 3=triforce
+  const MAP = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,2,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+    [1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1],
+    [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
+    [1,1,1,0,1,1,1,1,0,1,0,1,0,0,0,1,1,1,0,1],
+    [1,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,0,0,1,0,0,0,0,1,1,0,1,1,0,1,0,1],
+    [1,0,1,0,1,1,1,1,0,1,0,1,0,0,0,1,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  ];
+
+  // ── TILE HELPERS ──
+  function tileAt(col, row) {
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return 1;
+    return MAP[row][col];
+  }
+
+  function isWall(px, py) {
+    const r = 10;
+    return (
+      tileAt(Math.floor((px-r)/TILE), Math.floor((py-r)/TILE)) === 1 ||
+      tileAt(Math.floor((px+r)/TILE), Math.floor((py-r)/TILE)) === 1 ||
+      tileAt(Math.floor((px-r)/TILE), Math.floor((py+r)/TILE)) === 1 ||
+      tileAt(Math.floor((px+r)/TILE), Math.floor((py+r)/TILE)) === 1
+    );
+  }
+
+  // ── DRAWING ──
+  function drawTiles() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const t = MAP[r][c];
+        const x = c * TILE, y = r * TILE;
+        if (t === 1) {
+          ctx.fillStyle = '#1a3a1a';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.fillStyle = '#0d260d';
+          ctx.fillRect(x+1, y+1, TILE-2, TILE-2);
+          ctx.strokeStyle = '#2d5a2d';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(x+1, y+1, TILE-2, TILE-2);
+        } else {
+          ctx.fillStyle = '#111a11';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.strokeStyle = '#1a2a1a';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(x, y, TILE, TILE);
+        }
+      }
+    }
+  }
+
+  function drawTriforce(cx, cy) {
+    const s = 12;
+    ctx.fillStyle = '#c8a400';
+    ctx.shadowColor = '#c8a400';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - s);
+    ctx.lineTo(cx - s, cy + s * 0.4);
+    ctx.lineTo(cx + s, cy + s * 0.4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx - s*1.1, cy + s*0.5);
+    ctx.lineTo(cx - s*2.1, cy + s*1.8);
+    ctx.lineTo(cx, cy + s*1.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + s*1.1, cy + s*0.5);
+    ctx.lineTo(cx, cy + s*1.8);
+    ctx.lineTo(cx + s*2.1, cy + s*1.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function drawLink(x, y, dir) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Tunic
+    ctx.fillStyle = '#2d8a2d';
+    ctx.beginPath();
+    ctx.roundRect(-9, -4, 18, 20, 3);
+    ctx.fill();
+
+    // Belt
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(-9, 10, 18, 3);
+
+    // Neck
+    ctx.fillStyle = '#f5c5a0';
+    ctx.fillRect(-4, -14, 8, 12);
+
+    // Head
+    ctx.fillStyle = '#f5c5a0';
+    ctx.beginPath();
+    ctx.ellipse(0, -20, 9, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Hat
+    ctx.fillStyle = '#2d8a2d';
+    ctx.beginPath();
+    ctx.moveTo(-9, -22);
+    ctx.lineTo(0, -38);
+    ctx.lineTo(9, -22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(0, -22, 9, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(-3, -21, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -21, 1.5, 0, Math.PI*2); ctx.fill();
+
+    // Sword
+    ctx.fillStyle = '#cccccc';
+    if (dir === 'right') {
+      ctx.fillRect(9, -9, 18, 3);
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(6, -11, 4, 7);
+    } else if (dir === 'left') {
+      ctx.fillRect(-27, -9, 18, 3);
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(-10, -11, 4, 7);
+    } else if (dir === 'up') {
+      ctx.fillRect(-1.5, -40, 3, 18);
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(-5, -25, 10, 4);
+    } else {
+      ctx.fillRect(-1.5, -4, 3, 18);
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(-5, 6, 10, 4);
+    }
+
+    ctx.restore();
+  }
+
+  function drawKeese(x, y, frame) {
+    ctx.save();
+    ctx.translate(x, y);
+    const flap = Math.sin(frame * 0.25) > 0;
+
+    ctx.fillStyle = '#2a0a3a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 8, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#5a2a70';
+    if (flap) {
+      ctx.beginPath(); ctx.ellipse(-14, -5, 11, 5, -0.3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(14, -5, 11, 5, 0.3, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(-10, 3, 11, 4, 0.3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(10, 3, 11, 4, -0.3, 0, Math.PI*2); ctx.fill();
+    }
+
+    ctx.fillStyle = '#ff2222';
+    ctx.beginPath(); ctx.arc(-3, -1, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -1, 2, 0, Math.PI*2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawBokoblin(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Body
+    ctx.fillStyle = '#aa1111';
+    ctx.beginPath();
+    ctx.roundRect(-11, -6, 22, 22, 4);
+    ctx.fill();
+
+    // Belly
+    ctx.fillStyle = '#cc3333';
+    ctx.beginPath();
+    ctx.ellipse(0, 4, 7, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head
+    ctx.fillStyle = '#aa1111';
+    ctx.beginPath();
+    ctx.ellipse(0, -16, 12, 11, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Snout
+    ctx.fillStyle = '#cc2222';
+    ctx.beginPath();
+    ctx.ellipse(0, -12, 7, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes
+    ctx.fillStyle = '#ffee00';
+    ctx.beginPath(); ctx.arc(-5, -18, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -18, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(-5, -18, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -18, 1.5, 0, Math.PI*2); ctx.fill();
+
+    // Horns
+    ctx.fillStyle = '#882222';
+    ctx.beginPath(); ctx.moveTo(-8,-24); ctx.lineTo(-5,-33); ctx.lineTo(-2,-24); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(2,-24); ctx.lineTo(5,-33); ctx.lineTo(8,-24); ctx.closePath(); ctx.fill();
+
+    // Club arm
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(-20, -4, 6, 16);
+    ctx.fillStyle = '#5a2d0c';
+    ctx.beginPath();
+    ctx.ellipse(-17, -6, 8, 6, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ── GAME STATE ──
+  let startCol = 1, startRow = 1;
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (MAP[r][c] === 2) { startCol = c; startRow = r; }
+
+  const player = {
+    x: startCol * TILE + TILE/2,
+    y: startRow * TILE + TILE/2,
+    speed: 3,
+    dir: 'right',
+    lives: 3,
+    invincible: 0,
+  };
+
+  const DIRS = [{x:1.5,y:0},{x:-1.5,y:0},{x:0,y:1.5},{x:0,y:-1.5}];
+
+  const keese = [
+    { x: 5*TILE+TILE/2, y: 5*TILE+TILE/2, vx: 1.5, vy: 0, timer: 0 },
+    { x: 14*TILE+TILE/2, y: 3*TILE+TILE/2, vx: 0, vy: 1.5, timer: 40 },
+  ];
+
+  const bokoblin = {
+    x: 10*TILE+TILE/2,
+    y: 8*TILE+TILE/2,
+    vx: 0,
+    vy: 2,
+    speed: 2,
+    chargeSpeed: 3.5,
+    timer: 0,
+    charging: false,
+  };
+
+  const keys = {};
+  document.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))
+      e.preventDefault();
+  });
+  document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+  // ── FLASH ──
+  const flashEl = document.createElement('div');
+  Object.assign(flashEl.style, {
+    position: 'fixed', inset: '0', pointerEvents: 'none',
+    background: 'rgba(255,30,30,0)', zIndex: '9999',
+    transition: 'background 0.05s ease-in'
+  });
+  document.body.appendChild(flashEl);
+
+  function flashPage() {
+    flashEl.style.transition = 'none';
+    flashEl.style.background = 'rgba(255,30,30,0.55)';
+    setTimeout(() => {
+      flashEl.style.transition = 'background 0.35s ease-out';
+      flashEl.style.background = 'rgba(255,30,30,0)';
+    }, 60);
+  }
+
+  // ── UPDATE ──
+  function movePlayer() {
+    let dx = 0, dy = 0;
+    if (keys['ArrowLeft'])  { dx = -player.speed; player.dir = 'left'; }
+    if (keys['ArrowRight']) { dx =  player.speed; player.dir = 'right'; }
+    if (keys['ArrowUp'])    { dy = -player.speed; player.dir = 'up'; }
+    if (keys['ArrowDown'])  { dy =  player.speed; player.dir = 'down'; }
+
+    const nx = player.x + dx;
+    const ny = player.y + dy;
+    if (!isWall(nx, player.y)) player.x = nx;
+    if (!isWall(player.x, ny)) player.y = ny;
+    if (player.invincible > 0) player.invincible--;
+  }
+
+  function updateKeese() {
+    for (const k of keese) {
+      k.timer--;
+      if (k.timer <= 0 || isWall(k.x + k.vx * 6, k.y + k.vy * 6)) {
+        const shuffled = [...DIRS].sort(() => Math.random() - 0.5);
+        for (const d of shuffled) {
+          if (!isWall(k.x + d.x * 10, k.y + d.y * 10)) {
+            k.vx = d.x; k.vy = d.y;
+            break;
+          }
+        }
+        k.timer = 30 + Math.floor(Math.random() * 40);
+      }
+      if (!isWall(k.x + k.vx, k.y)) k.x += k.vx;
+      if (!isWall(k.x, k.y + k.vy)) k.y += k.vy;
+    }
+  }
+
+  function updateBokoblin() {
+    const dx = player.x - bokoblin.x;
+    const dy = player.y - bokoblin.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const CHARGE_RANGE = TILE * 3.5;
+
+    if (dist < CHARGE_RANGE) {
+      bokoblin.charging = true;
+      const spd = bokoblin.chargeSpeed;
+      const nx = bokoblin.x + (dx / dist) * spd;
+      const ny = bokoblin.y + (dy / dist) * spd;
+      if (!isWall(nx, bokoblin.y)) bokoblin.x = nx;
+      if (!isWall(bokoblin.x, ny)) bokoblin.y = ny;
+    } else {
+      bokoblin.charging = false;
+      bokoblin.timer--;
+      if (bokoblin.timer <= 0 || isWall(bokoblin.x + bokoblin.vx * 6, bokoblin.y + bokoblin.vy * 6)) {
+        const opts = DIRS.map(d => ({x: d.x/1.5*bokoblin.speed, y: d.y/1.5*bokoblin.speed}));
+        const shuffled = opts.sort(() => Math.random() - 0.5);
+        for (const d of shuffled) {
+          if (!isWall(bokoblin.x + d.x * 10, bokoblin.y + d.y * 10)) {
+            bokoblin.vx = d.x; bokoblin.vy = d.y;
+            break;
+          }
+        }
+        bokoblin.timer = 40 + Math.floor(Math.random() * 50);
+      }
+      if (!isWall(bokoblin.x + bokoblin.vx, bokoblin.y)) bokoblin.x += bokoblin.vx;
+      if (!isWall(bokoblin.x, bokoblin.y + bokoblin.vy)) bokoblin.y += bokoblin.vy;
+    }
+  }
+
+  function checkEnemyCollisions() {
+    if (player.invincible > 0) return;
+    const all = [...keese, bokoblin];
+    for (const e of all) {
+      const dx = player.x - e.x;
+      const dy = player.y - e.y;
+      if (Math.sqrt(dx*dx + dy*dy) < 22) {
+        player.lives--;
+        player.invincible = 90;
+        flashPage();
+      }
+    }
+  }
+
+  function checkTriforce() {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (MAP[r][c] === 3) {
+          const tx = c*TILE + TILE/2;
+          const ty = r*TILE + TILE/2;
+          const dx = player.x - tx;
+          const dy = player.y - ty;
+          if (Math.sqrt(dx*dx + dy*dy) < TILE * 0.7) return true;
+        }
+    return false;
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = '#c8a400';
+    ctx.font = 'bold 14px Orbitron, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('❤️'.repeat(Math.max(0, player.lives)), 10, H - 10);
+  }
+
+  // ── RESET ──
+  function resetGame() {
+    player.x = startCol * TILE + TILE/2;
+    player.y = startRow * TILE + TILE/2;
+    player.dir = 'right';
+    player.lives = 3;
+    player.invincible = 0;
+    keese[0].x = 5*TILE+TILE/2; keese[0].y = 5*TILE+TILE/2; keese[0].vx = 1.5; keese[0].vy = 0; keese[0].timer = 0;
+    keese[1].x = 14*TILE+TILE/2; keese[1].y = 3*TILE+TILE/2; keese[1].vx = 0; keese[1].vy = 1.5; keese[1].timer = 40;
+    bokoblin.x = 10*TILE+TILE/2; bokoblin.y = 8*TILE+TILE/2;
+    bokoblin.vx = 0; bokoblin.vy = 2; bokoblin.charging = false; bokoblin.timer = 0;
+    frame = 0;
+    gameState = 'playing';
+    startBtn.textContent = 'RESTART';
+  }
+
+  startBtn.addEventListener('click', resetGame);
+
+  // ── GAME LOOP ──
+  let gameState = 'idle';
+  let frame = 0;
+
+  function loop() {
+    requestAnimationFrame(loop);
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+
+    drawTiles();
+
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (MAP[r][c] === 3)
+          drawTriforce(c*TILE + TILE/2, r*TILE + TILE/2);
+
+    if (gameState === 'idle') {
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#c8a400';
+      ctx.font = 'bold 22px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ENTER THE DUNGEON', W/2, H/2 - 14);
+      ctx.fillStyle = '#6a9a6a';
+      ctx.font = '16px Rajdhani, sans-serif';
+      ctx.fillText('Use arrow keys — reach the Triforce!', W/2, H/2 + 18);
+      return;
+    }
+
+    if (gameState === 'playing') {
+      movePlayer();
+      updateKeese();
+      updateBokoblin();
+      checkEnemyCollisions();
+      if (checkTriforce()) gameState = 'win';
+      if (player.lives <= 0) gameState = 'dead';
+    }
+
+    // Draw enemies
+    for (const k of keese) drawKeese(k.x, k.y, frame);
+    // Bokoblin glows red when charging
+    if (bokoblin.charging) {
+      ctx.save();
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 16;
+      drawBokoblin(bokoblin.x, bokoblin.y);
+      ctx.restore();
+    } else {
+      drawBokoblin(bokoblin.x, bokoblin.y);
+    }
+
+    // Link flickers when invincible
+    if (player.invincible === 0 || frame % 6 < 3) {
+      drawLink(player.x, player.y, player.dir);
+    }
+
+    drawHUD();
+
+    if (gameState === 'win') {
+      ctx.fillStyle = 'rgba(0,0,0,0.72)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.save();
+      ctx.fillStyle = '#c8a400';
+      ctx.shadowColor = '#c8a400';
+      ctx.shadowBlur = 24;
+      ctx.font = 'bold 28px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('YOU FOUND THE TRIFORCE', W/2, H/2 - 22);
+      ctx.restore();
+      ctx.fillStyle = '#a8d4a8';
+      ctx.font = '18px Rajdhani, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Courage. Wisdom. Power. All yours.', W/2, H/2 + 16);
+    }
+
+    if (gameState === 'dead') {
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#ff4444';
+      ctx.font = 'bold 28px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', W/2, H/2 - 22);
+      ctx.fillStyle = '#6a9a6a';
+      ctx.font = '18px Rajdhani, sans-serif';
+      ctx.fillText('Ganon wins... this time.', W/2, H/2 + 16);
+    }
+  }
+
+  loop();
+</script>
+</body>
+</html>
