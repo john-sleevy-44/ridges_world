@@ -411,163 +411,233 @@
     ctx.shadowBlur = 0;
   }
 
-  // ── LINK (LTTP pixel-art style) ──
+  // ── LINK (LTTP SNES pixel-art sprite) ──
+  // Each rect = 2×2 canvas px = 1 logical "pixel" at SNES 2× scale
   function drawLink(x, y, dir) {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
+    ctx.imageSmoothingEnabled = false;
 
-    // Walking bob
     const moving = keys['ArrowLeft']||keys['ArrowRight']||keys['ArrowUp']||keys['ArrowDown'];
-    const bob = (moving && gameState==='playing') ? (Math.floor(frame/6)%2 ? 1 : 0) : 0;
+    const step  = (moving && gameState==='playing') ? Math.floor(frame/7)%4 : 0;
+    const bob   = (step===1||step===3) ? 2 : 0;
 
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(0, 13+bob, 9, 3, 0, 0, Math.PI*2);
-    ctx.fill();
+    // Floor shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath(); ctx.ellipse(0,14,10,3,0,0,Math.PI*2); ctx.fill();
 
-    const b = bob; // shorthand
+    // Flip canvas for left-facing (mirrors right-facing sprite)
+    if (dir==='left') ctx.scale(-1,1);
 
-    if (dir === 'left') { ctx.scale(-1, 1); }
+    // Short alias: draw a 2×2-based rect
+    function r(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x,y,w*2,h*2); }
 
-    if (dir === 'right' || dir === 'left') {
-      // Hat
-      px(-4,-36+b,  8, 2, C.lGrnDk);
-      px(-6,-34+b, 12, 3, C.lGreen);
-      px(-8,-31+b, 14, 4, C.lGrnLt);
-      px(-8,-27+b, 14, 3, C.lGreen);
-      px(-8,-24+b, 14, 2, C.lGrnDk);
-      // Hair
-      px(-8,-22+b,  4, 3, C.lHair);
-      px( 4,-22+b,  4, 3, C.lHair);
-      // Face outline
-      px(-7,-19+b, 14, 1, C.black);
-      px(-7,-18+b,  2, 8, C.black);
-      px( 5,-18+b,  2, 8, C.black);
-      px(-7,-10+b, 14, 1, C.black);
-      // Face fill
-      px(-5,-18+b, 10, 8, C.lSkin);
-      px(-6,-16+b,  2, 4, C.lSkin); // ear
-      // Eye
-      px( 1,-16+b,  2, 2, C.black);
-      // Nose
-      px( 2,-13+b,  2, 1, C.lSkinDk);
+    // LTTP palette
+    const K='#080808'; // outline
+    const G='#38a808',L='#60d020',g='#186000'; // green tunic/hat (hi/mid/dark)
+    const F='#f8c878',f='#b87840';             // skin (light/shadow)
+    const Y='#f8d840';                          // blonde hair
+    const Br='#884818',br='#502808';            // brown (belt/boots)
+    const Si='#d8e0f8',si='#8898c0';            // sword silver
+    const Sh='#1848e0',sh='#5080ff',sr='#a0b8f0'; // shield blue
+
+    const bY = bob;
+
+    if (dir==='right'||dir==='left') {
+      // ── HAT (drooping LTTP elf cap) ──
+      //  tip
+      r( 3,-21+bY, 1,1, g);
+      r( 2,-20+bY, 3,1, G);
+      r( 1,-19+bY, 5,1, G); r(1,-19+bY,2,1,L);
+      r( 0,-18+bY, 6,1, G); r(0,-18+bY,2,1,L);
+      r(-1,-17+bY, 8,1, G); r(-1,-17+bY,2,1,L);
+      r(-2,-16+bY,10,1, G); r(-2,-16+bY,2,1,L);
+      r(-3,-15+bY,11,1, G); r(-3,-15+bY,3,1,L);
+      r(-4,-14+bY,12,1, g); // brim/shadow row
+      // Hair peeking under brim
+      r(-5,-13+bY, 3,1, Y); // left
+      r( 5,-13+bY, 2,1, Y); // right
+
+      // ── FACE ──
+      r(-4,-12+bY, 9,1, K); // top outline
+      r(-4,-11+bY, 1,5, K); // left outline
+      r( 4,-11+bY, 1,5, K); // right outline
+      r(-4, -6+bY, 9,1, K); // chin outline
+      r(-3,-11+bY, 7,5, F); // face fill
+      r(-5, -9+bY, 1,3, F); // ear
+      // eye (single, side-on)
+      r( 1,-10+bY, 2,2, K);
+      r( 1,-10+bY, 1,1, '#5898e8');
+      r( 1,-10+bY, 1,1, K);
+      // nose
+      r( 2, -8+bY, 1,1, f);
       // Neck
-      px(-3,-9+b,   6, 2, C.lSkin);
-      // Tunic body
-      px(-9,-7+b,  18, 1, C.black);
-      px(-9,-6+b,   2,16, C.black);
-      px( 7,-6+b,   2,16, C.black);
-      px(-9, 10+b, 18, 1, C.black);
-      px(-7,-6+b,  14,16, C.lGreen);
-      px(-6,-5+b,   3,14, C.lGrnLt);  // highlight
-      px( 3,-5+b,   3,14, C.lGrnDk);  // shadow
-      // Belt
-      px(-7, 8+b,  14, 2, C.lBrwnDk);
-      px(-7, 8+b,   6, 1, C.lBrown);
-      // Shield (left side)
-      px(-16,-6+b,  6, 8, C.lShLt);
-      px(-16,-6+b,  6, 1, C.lSilvDk);
-      px(-16,-6+b,  1, 8, C.lSilvDk);
-      px(-15,-4+b,  4, 3, C.lShield);
-      px(-14,-3+b,  2, 1, C.lShLt);
-      // Sword arm + sword
-      px( 8,-4+b,   4, 4, C.lSkin);
-      px(12,-5+b,   1, 4, C.lBrown);  // guard
-      px(13,-5+b,  14, 2, C.lSilver);
-      px(13,-5+b,  14, 1, C.lSilvDk);
-      px(26,-5+b,   1, 2, C.lSilvDk); // tip
-      // Legs
-      px(-7,11+b,   5, 7, C.lGrnDk);
-      px( 2,11+b,   5, 7, C.lGrnDk);
-      // Boots
-      px(-7,18+b,   5, 2, C.lBrown);
-      px( 2,18+b,   5, 2, C.lBrown);
-      px(-8,19+b,   6, 1, C.lBrwnDk);
-      px( 1,19+b,   6, 1, C.lBrwnDk);
+      r(-1, -5+bY, 3,2, F);
 
-    } else if (dir === 'up') {
-      // Hat (back view)
-      px(-4,-36+b,  8, 2, C.lGrnDk);
-      px(-6,-34+b, 12, 3, C.lGreen);
-      px(-8,-31+b, 14, 4, C.lGrnLt);
-      px(-8,-27+b, 14, 3, C.lGreen);
-      px(-8,-24+b, 14, 2, C.lGrnDk);
-      // Hair (back of head)
-      px(-7,-22+b, 14, 9, C.lHair);
-      px(-7,-22+b,  2, 9, C.lSkinDk); // side
-      px( 5,-22+b,  2, 9, C.lSkinDk);
-      // Tunic back
-      px(-9,-7+b,  18, 1, C.black);
-      px(-9,-6+b,   2,16, C.black);
-      px( 7,-6+b,   2,16, C.black);
-      px(-9,10+b,  18, 1, C.black);
-      px(-7,-6+b,  14,16, C.lGreen);
-      px(-6,-5+b,   3,14, C.lGrnLt);
-      px( 3,-5+b,   3,14, C.lGrnDk);
-      px(-7, 8+b,  14, 2, C.lBrwnDk);
-      // Sword pointing up
-      px(-2,-48+b,  4, 2, C.lSilvDk); // tip
-      px(-1,-46+b,  2,12, C.lSilver);
-      px(-4,-36+b,  8, 2, C.lBrown);  // crossguard (overlaps hat base — fine)
-      px(-1,-34+b,  2, 4, C.lBrown);  // handle
-      // Arms (back view)
-      px(-11,-4+b,  3, 6, C.lSkin);
-      px(  8,-4+b,  3, 6, C.lSkin);
-      // Legs
-      px(-7,11+b,   5, 7, C.lGrnDk);
-      px( 2,11+b,   5, 7, C.lGrnDk);
-      px(-7,18+b,   5, 2, C.lBrown);
-      px( 2,18+b,   5, 2, C.lBrown);
+      // ── BODY ──
+      r(-5, -3+bY, 1,9, K); // left outline
+      r( 4, -3+bY, 1,9, K); // right outline
+      r(-4, -3+bY, 8,1, K); // top outline
+      r(-4,  6+bY, 8,1, K); // bottom outline
+      r(-4, -2+bY, 8,8, G); // fill
+      r(-4, -2+bY, 2,8, L); // left highlight
+      r( 2, -2+bY, 2,8, g); // right shadow
+      // Belt
+      r(-4,  4+bY, 8,2, br);
+      r(-4,  4+bY, 3,1, Br);
+      r( 0,  4+bY, 2,2, '#d0a000'); // buckle
+
+      // ── SHIELD (left side) ──
+      r(-9, -2+bY, 1,6, K);
+      r(-8, -2+bY, 4,1, K);
+      r(-8,  4+bY, 4,1, K);
+      r(-8, -1+bY, 4,5, sr);
+      r(-8, -1+bY, 4,2, sh); // top highlight
+      r(-8, -1+bY, 1,5, sh); // left highlight
+      r(-7,  1+bY, 2,2, Sh); // center blue
+
+      // ── SWORD ARM + SWORD ──
+      r( 5, -1+bY, 2,3, F); // arm/hand
+      // sword handle
+      r( 7, -2+bY, 1,2, Br);
+      r( 6, -3+bY, 1,2, br); // guard vertical
+      r( 7, -3+bY, 1,1, br); // guard top
+      // blade
+      r( 8, -2+bY,10,1, Si);
+      r( 8, -1+bY,10,1, si);
+      r(17, -2+bY, 1,2, si); // tip
+
+      // ── LEGS ──
+      const lStep = step===0 ? 2 : step===2 ? -2 : 0;
+      r(-4,  7+bY, 3,5, g); // left leg
+      r( 1,  7+bY, 3,5, g); // right leg
+      // Boots
+      r(-5, 12+bY, 4,2, Br);
+      r( 0, 12+bY, 4,2, Br);
+      r(-5, 13+bY, 5,1, br);
+      r( 0, 13+bY, 5,1, br);
+
+    } else if (dir==='up') {
+      // ── HAT ──
+      r( 2,-21+bY, 2,1, g);
+      r( 1,-20+bY, 4,1, G);
+      r( 0,-19+bY, 5,1, G); r(0,-19+bY,2,1,L);
+      r(-1,-18+bY, 7,1, G); r(-1,-18+bY,2,1,L);
+      r(-2,-17+bY, 9,1, G); r(-2,-17+bY,2,1,L);
+      r(-3,-16+bY,10,1, G); r(-3,-16+bY,3,1,L);
+      r(-4,-15+bY,12,1, g);
+
+      // ── BACK OF HEAD (hair) ──
+      r(-4,-14+bY, 9,1, K);
+      r(-4,-13+bY, 1,5, K);
+      r( 4,-13+bY, 1,5, K);
+      r(-4, -8+bY, 9,1, K);
+      r(-3,-13+bY, 7,5, Y); // full hair back
+      r(-3,-13+bY, 1,5, f); // ear shadow left
+      r( 3,-13+bY, 1,5, f); // ear shadow right
+
+      // ── BODY ──
+      r(-5, -3+bY, 1,9, K);
+      r( 4, -3+bY, 1,9, K);
+      r(-4, -3+bY, 8,1, K);
+      r(-4,  6+bY, 8,1, K);
+      r(-4, -2+bY, 8,8, G);
+      r(-4, -2+bY, 2,8, L);
+      r( 2, -2+bY, 2,8, g);
+      r(-4,  4+bY, 8,2, br);
+      r( 0,  4+bY, 2,2, '#d0a000');
+
+      // ── SWORD (pointing straight up) ──
+      r(-1,-26+bY, 2,1, si); // tip
+      r(-1,-25+bY, 2,8, Si); // blade
+      r(-3,-17+bY, 6,1, Br); // crossguard
+      r(-1,-16+bY, 2,3, br); // handle
+      // Left arm visible
+      r(-5, -1+bY, 1,4, F);
+
+      // ── SHIELD on back ──
+      r(-9, -1+bY, 1,5, K);
+      r(-8, -1+bY, 3,5, sr);
+      r(-8, -1+bY, 3,2, sh);
+      r(-8, -1+bY, 1,5, sh);
+      r(-7,  1+bY, 2,2, Sh);
+
+      // ── LEGS ──
+      r(-4,  7+bY, 3,5, g);
+      r( 1,  7+bY, 3,5, g);
+      r(-5, 12+bY, 4,2, Br);
+      r( 0, 12+bY, 4,2, Br);
+      r(-5, 13+bY, 5,1, br);
+      r( 0, 13+bY, 5,1, br);
 
     } else { // down
-      // Hat
-      px(-4,-36+b,  8, 2, C.lGrnDk);
-      px(-6,-34+b, 12, 3, C.lGreen);
-      px(-8,-31+b, 14, 4, C.lGrnLt);
-      px(-8,-27+b, 14, 3, C.lGreen);
-      px(-8,-24+b, 14, 2, C.lGrnDk);
-      // Hair
-      px(-8,-22+b,  4, 3, C.lHair);
-      px( 4,-22+b,  4, 3, C.lHair);
-      // Face (front)
-      px(-7,-19+b, 14, 1, C.black);
-      px(-7,-18+b,  2, 8, C.black);
-      px( 5,-18+b,  2, 8, C.black);
-      px(-7,-10+b, 14, 1, C.black);
-      px(-5,-18+b, 10, 8, C.lSkin);
-      px(-4,-15+b,  2, 2, C.black); // left eye
-      px( 2,-15+b,  2, 2, C.black); // right eye
-      px(-2,-11+b,  4, 1, C.lSkinDk); // mouth
+      // ── HAT ──
+      r( 2,-21+bY, 2,1, g);
+      r( 1,-20+bY, 3,1, G);
+      r( 0,-19+bY, 5,1, G); r(0,-19+bY,2,1,L);
+      r(-1,-18+bY, 7,1, G); r(-1,-18+bY,2,1,L);
+      r(-2,-17+bY, 9,1, G); r(-2,-17+bY,3,1,L);
+      r(-3,-16+bY,10,1, G); r(-3,-16+bY,3,1,L);
+      r(-4,-15+bY,12,1, g);
+      // Hair sides
+      r(-5,-14+bY, 2,2, Y);
+      r( 4,-14+bY, 2,2, Y);
+
+      // ── FACE (front) ──
+      r(-4,-12+bY, 9,1, K);
+      r(-4,-11+bY, 1,5, K);
+      r( 4,-11+bY, 1,5, K);
+      r(-4, -6+bY, 9,1, K);
+      r(-3,-11+bY, 7,5, F);
+      r(-5, -9+bY, 1,3, F); // left ear
+      r( 5, -9+bY, 1,3, F); // right ear
+      // eyes (two, front-facing)
+      r(-2,-10+bY, 2,2, K);
+      r( 2,-10+bY, 2,2, K);
+      r(-2,-10+bY, 1,1, '#5898e8');
+      r( 2,-10+bY, 1,1, '#5898e8');
+      r(-2,-10+bY, 1,1, '#ffffff'); r(-1,-10+bY,0,0,K);
+      // nose + mouth
+      r( 0, -8+bY, 2,1, f);
+      r(-1, -7+bY, 4,1, '#a05030');
       // Neck
-      px(-3,-9+b,   6, 2, C.lSkin);
-      // Tunic
-      px(-9,-7+b,  18, 1, C.black);
-      px(-9,-6+b,   2,16, C.black);
-      px( 7,-6+b,   2,16, C.black);
-      px(-9,10+b,  18, 1, C.black);
-      px(-7,-6+b,  14,16, C.lGreen);
-      px(-6,-5+b,   3,14, C.lGrnLt);
-      px( 3,-5+b,   3,14, C.lGrnDk);
-      px(-7, 8+b,  14, 2, C.lBrwnDk);
-      // Shield (left)
-      px(-16,-6+b,  6, 8, C.lShLt);
-      px(-16,-6+b,  6, 1, C.lSilvDk);
-      px(-16,-6+b,  1, 8, C.lSilvDk);
-      px(-15,-4+b,  4, 3, C.lShield);
-      // Sword pointing down
-      px(-2,11+b,   4, 2, C.lBrown);  // handle
-      px(-4,11+b,   8, 2, C.lBrown);  // crossguard
-      px(-1,13+b,   2,12, C.lSilver);
-      px( 0,24+b,   1, 1, C.lSilvDk);
-      // Arms
-      px(-11,-4+b,  3, 5, C.lSkin);
-      px(  8,-4+b,  3, 5, C.lSkin);
-      // Legs
-      px(-7,11+b,   5, 7, C.lGrnDk);
-      px( 2,11+b,   5, 7, C.lGrnDk);
-      px(-7,18+b,   5, 2, C.lBrown);
-      px( 2,18+b,   5, 2, C.lBrown);
+      r(-1, -5+bY, 3,2, F);
+
+      // ── BODY ──
+      r(-5, -3+bY, 1,9, K);
+      r( 4, -3+bY, 1,9, K);
+      r(-4, -3+bY, 8,1, K);
+      r(-4,  6+bY, 8,1, K);
+      r(-4, -2+bY, 8,8, G);
+      r(-4, -2+bY, 2,8, L);
+      r( 2, -2+bY, 2,8, g);
+      r(-4,  4+bY, 8,2, br);
+      r( 0,  4+bY, 2,2, '#d0a000');
+
+      // ── SHIELD (left) ──
+      r(-9, -2+bY, 1,6, K);
+      r(-8, -2+bY, 4,1, K);
+      r(-8,  4+bY, 4,1, K);
+      r(-8, -1+bY, 4,5, sr);
+      r(-8, -1+bY, 4,2, sh);
+      r(-8, -1+bY, 1,5, sh);
+      r(-7,  1+bY, 2,2, Sh);
+
+      // ── SWORD (pointing down, right hand) ──
+      r( 5, -1+bY, 2,3, F); // arm
+      r( 5, -3+bY, 2,2, br); // handle
+      r( 3, -4+bY, 5,1, Br); // crossguard
+      r( 5,  2+bY, 2,8, Si); // blade down
+      r( 6,  2+bY, 1,8, si); // blade edge
+      r( 5,  9+bY, 2,1, si); // tip
+
+      // ── LEGS ──
+      r(-4,  7+bY, 3,5, g);
+      r( 1,  7+bY, 3,5, g);
+      r(-5, 12+bY, 4,2, Br);
+      r( 0, 12+bY, 4,2, Br);
+      r(-5, 13+bY, 5,1, br);
+      r( 0, 13+bY, 5,1, br);
     }
 
     ctx.restore();
